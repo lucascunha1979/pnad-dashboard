@@ -2,57 +2,114 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Panorama do Trabalho no Brasil e no RS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Painel Interativo - PNAD Contínua: Brasil e Rio Grande do Sul">
+  <meta property="og:title" content="Painel Interativo - PNAD Contínua">
+  <meta property="og:description" content="Visualização interativa dos indicadores de trabalho e emprego no Brasil e Rio Grande do Sul (PNAD Contínua - IBGE).">
+  <meta property="og:type" content="website">
+  <title>📊 Painel Interativo - PNAD Contínua: Brasil e Rio Grande do Sul</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f9f9f9;
-    }
-    h1 {
-      text-align: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fafafa;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background: #002b5c;
+      color: white;
+      width: 100%;
+      text-align: center;
+      padding: 25px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+    header h2 {
+      margin: 5px 0 0;
+      font-weight: 400;
+      font-size: 1.1em;
     }
     #controls {
-      text-align: center;
-      margin-bottom: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: 25px auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 1000px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
     }
     select {
       padding: 8px;
-      font-size: 16px;
-      margin: 0 10px;
+      font-size: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    label {
+      font-weight: bold;
+      margin-right: 5px;
     }
     #grafico {
+      width: 95%;
+      max-width: 1100px;
+      margin-bottom: 40px;
+    }
+    footer {
+      background: #002b5c;
+      color: white;
+      text-align: center;
+      padding: 15px 10px;
+      font-size: 0.9em;
       width: 100%;
-      max-width: 1000px;
-      margin: auto;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
-  <h1>Painel Interativo: Indicadores da PNAD Contínua</h1>
+  <header>
+    <h1>📊 Painel Interativo - PNAD Contínua</h1>
+    <h2>Indicadores de Trabalho e Emprego - Brasil e Rio Grande do Sul</h2>
+  </header>
 
   <div id="controls">
-    <label for="variavelSelect">Variável:</label>
-    <select id="variavelSelect"></select>
-
-    <label for="abrangenciaSelect">Abrangência:</label>
-    <select id="abrangenciaSelect">
-      <option value="Brasil">Brasil</option>
-      <option value="Rio Grande do Sul">Rio Grande do Sul</option>
-    </select>
-
-    <label for="popSelect">População:</label>
-    <select id="popSelect">
-      <option value="Todas">Todas</option>
-      <option value="Total">Total</option>
-      <option value="Homens">Homens</option>
-      <option value="Mulheres">Mulheres</option>
-    </select>
+    <div>
+      <label for="variavelSelect">Variável:</label>
+      <select id="variavelSelect"></select>
+    </div>
+    <div>
+      <label for="abrangenciaSelect">Abrangência:</label>
+      <select id="abrangenciaSelect">
+        <option value="Brasil">Brasil</option>
+        <option value="Rio Grande do Sul">Rio Grande do Sul</option>
+      </select>
+    </div>
+    <div>
+      <label for="popSelect">População:</label>
+      <select id="popSelect">
+        <option value="Todas">Todas</option>
+        <option value="Total">Total</option>
+        <option value="Homens">Homens</option>
+        <option value="Mulheres">Mulheres</option>
+      </select>
+    </div>
   </div>
 
   <div id="grafico"></div>
+
+  <footer>
+    Desenvolvido por <strong>Lucas Cunha</strong> • Dados: IBGE/PNAD Contínua • © 2025
+  </footer>
 
   <script>
     const lideres = {
@@ -116,14 +173,16 @@
             x: grupos[pop].map(p => p.x),
             y: grupos[pop].map(p => p.y),
             mode: 'lines+markers',
-            name: pop
+            name: pop,
+            line: { width: 2 }
           }));
         } else {
           traces.push({
             x: grupos[popFiltro].map(p => p.x),
             y: grupos[popFiltro].map(p => p.y),
             mode: 'lines+markers',
-            name: popFiltro
+            name: popFiltro,
+            line: { width: 2 }
           });
         }
 
@@ -149,22 +208,27 @@
 
           annotations.push({
             x: x0,
-            y: 1.05,
+            y: 1.08,
             xref: 'x',
             yref: 'paper',
             text: lider.nome,
             showarrow: false,
-            font: { size: 11, color: 'black' },
+            font: { size: 12, color: '#111' },
             textangle: 90
           });
         }
 
         Plotly.newPlot('grafico', traces, {
-          title: `${abrangencia}: ${variavel}`,
-          xaxis: { title: 'Trimestre' },
+          title: { text: `${abrangencia}: ${variavel}`, font: { size: 18 } },
+          xaxis: { title: 'Período', tickangle: -45 },
           yaxis: { title: 'Valor' },
           shapes: shapes,
-          annotations: annotations
+          annotations: annotations,
+          height: 650,
+          margin: { l: 70, r: 30, t: 80, b: 120 },
+          legend: { orientation: 'h', y: -0.25, x: 0.5, xanchor: 'center' },
+          plot_bgcolor: "#fff",
+          paper_bgcolor: "#fff"
         });
       }
 
