@@ -5,17 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Painel Interativo - PNAD Contínua: Brasil e Rio Grande do Sul">
   <meta property="og:title" content="Painel Interativo - PNAD Contínua">
-  <meta property="og:description" content="Visualização interativa dos indicadores de trabalho e emprego no Brasil e Rio Grande do Sul (PNAD Contínua - IBGE).">
+  <meta property="og:description" content="Visualização interativa dos indicadores de trabalho e emprego no Brasil e no Rio Grande do Sul.">
   <meta property="og:type" content="website">
-  <title>📊 Painel Interativo - PNAD Contínua: Brasil e Rio Grande do Sul</title>
+  <title>📊 Painel Interativo - PNAD Contínua</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
       background: #fafafa;
       color: #333;
+      margin: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -23,35 +22,35 @@
     header {
       background: #002b5c;
       color: white;
-      width: 100%;
       text-align: center;
-      padding: 25px 0;
+      padding: 20px 0;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: 100%;
     }
     header h1 {
       margin: 0;
-      font-size: 1.9em;
+      font-size: 1.8em;
     }
     header h2 {
       margin: 5px 0 0;
       font-weight: 400;
-      font-size: 1.1em;
+      font-size: 1em;
     }
     #controls {
       background: white;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin: 25px auto;
-      padding: 20px;
+      margin: 20px auto;
+      padding: 15px;
       width: 90%;
       max-width: 1000px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
     }
     select {
-      padding: 8px;
+      padding: 6px;
       font-size: 15px;
       border-radius: 5px;
       border: 1px solid #ccc;
@@ -60,42 +59,63 @@
       font-weight: bold;
       margin-right: 5px;
     }
-    #grafico {
+    #chart-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 15px;
       width: 95%;
-      max-width: 1150px;
-      margin-bottom: 50px;
+      max-width: 1200px;
+    }
+    #grafico {
+      flex-grow: 1;
+      height: 700px;
+    }
+    #legenda-lideres {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      width: 200px;
+      font-size: 14px;
+    }
+    .item-lider {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .cor-lider {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      margin-right: 8px;
+      border: 1px solid #ccc;
     }
     footer {
       background: #002b5c;
       color: white;
       text-align: center;
-      padding: 15px 10px;
-      font-size: 0.9em;
+      padding: 10px 0;
+      margin-top: 30px;
       width: 100%;
-      box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
   <header>
     <h1>📊 Painel Interativo - PNAD Contínua</h1>
-    <h2>Indicadores de Trabalho e Emprego - Brasil e Rio Grande do Sul</h2>
+    <h2>Indicadores de Trabalho e Emprego: Brasil e Rio Grande do Sul</h2>
   </header>
 
   <div id="controls">
-    <div>
-      <label for="variavelSelect">Variável:</label>
-      <select id="variavelSelect"></select>
-    </div>
-    <div>
-      <label for="abrangenciaSelect">Abrangência:</label>
+    <div><label for="variavelSelect">Variável:</label><select id="variavelSelect"></select></div>
+    <div><label for="abrangenciaSelect">Abrangência:</label>
       <select id="abrangenciaSelect">
         <option value="Brasil">Brasil</option>
         <option value="Rio Grande do Sul">Rio Grande do Sul</option>
       </select>
     </div>
-    <div>
-      <label for="popSelect">População:</label>
+    <div><label for="popSelect">População:</label>
       <select id="popSelect">
         <option value="Todas">Todas</option>
         <option value="Total">Total</option>
@@ -105,7 +125,10 @@
     </div>
   </div>
 
-  <div id="grafico"></div>
+  <div id="chart-container">
+    <div id="grafico"></div>
+    <div id="legenda-lideres"></div>
+  </div>
 
   <footer>
     Desenvolvido por <strong>Lucas Cunha</strong> • Dados: IBGE/PNAD Contínua • © 2025
@@ -117,28 +140,24 @@
         { nome: "Dilma Rousseff", inicio: "2011-01-01", cor: "#d62728" },
         { nome: "Michel Temer", inicio: "2016-08-31", cor: "#1f77b4" },
         { nome: "Jair Bolsonaro", inicio: "2019-01-01", cor: "#2ca02c" },
-        { nome: "Lula", inicio: "2023-01-01", cor: "#ff7f0e" }
+        { nome: "Luiz Inácio Lula da Silva", inicio: "2023-01-01", cor: "#ff7f0e" }
       ],
       "Rio Grande do Sul": [
         { nome: "Tarso Genro", inicio: "2011-01-01", cor: "#d62728" },
         { nome: "José Ivo Sartori", inicio: "2015-01-01", cor: "#1f77b4" },
         { nome: "Eduardo Leite (1º)", inicio: "2019-01-01", cor: "#2ca02c" },
-        { nome: "Ranolfo Vieira", inicio: "2022-03-31", cor: "#ff7f0e" },
+        { nome: "Ranolfo Vieira Júnior", inicio: "2022-03-31", cor: "#ff7f0e" },
         { nome: "Eduardo Leite (2º)", inicio: "2023-01-01", cor: "#9467bd" }
       ]
     };
 
     Plotly.d3.csv('dados_pnad_trabalho.csv', function(data) {
       if (!data || data.length === 0) {
-        alert("Erro: o arquivo CSV não foi encontrado ou está vazio!");
+        alert("Erro: o arquivo CSV não foi encontrado!");
         return;
       }
 
-      const numericCols = Object.keys(data[0]).filter(c => 
-        !['data', 'data_formatada', 'abrangencia', 'pop', 'variavel', 'lideranca'].includes(c)
-      );
-      const valorCol = numericCols[0];
-
+      const valorCol = Object.keys(data[0]).find(c => !['data', 'abrangencia', 'pop', 'variavel', 'lideranca', 'data_formatada'].includes(c));
       const variaveis = [...new Set(data.map(row => row.variavel))];
       const variavelSelect = document.getElementById('variavelSelect');
       variaveis.forEach(v => {
@@ -151,10 +170,8 @@
       function quebraTitulo(texto) {
         if (texto.length > 80) {
           const meio = Math.floor(texto.length / 2);
-          const posicaoEspaco = texto.indexOf(' ', meio);
-          if (posicaoEspaco !== -1) {
-            return texto.slice(0, posicaoEspaco) + '<br>' + texto.slice(posicaoEspaco + 1);
-          }
+          const pos = texto.indexOf(' ', meio);
+          return texto.slice(0, pos) + '<br>' + texto.slice(pos + 1);
         }
         return texto;
       }
@@ -168,7 +185,7 @@
         const grupos = { Total: [], Homens: [], Mulheres: [] };
         filtrado.forEach(row => {
           const y = parseFloat(row[valorCol]);
-          if (!isNaN(y) && grupos[row.pop]) grupos[row.pop].push({ x: row.data, y: y });
+          if (!isNaN(y) && grupos[row.pop]) grupos[row.pop].push({ x: row.data, y });
         });
 
         let traces = [];
@@ -191,8 +208,9 @@
         }
 
         const shapes = [];
-        const annotations = [];
         const liderancas = lideres[abrangencia];
+        const legendaDiv = document.getElementById("legenda-lideres");
+        legendaDiv.innerHTML = "<h4>Lideranças</h4>";
 
         for (let i = 0; i < liderancas.length; i++) {
           const lider = liderancas[i];
@@ -200,49 +218,41 @@
           const x0 = lider.inicio;
           const x1 = (i < liderancas.length - 1) ? liderancas[i + 1].inicio : '2026-01-01';
 
-          // Centralizar o texto entre os períodos
-          const xCenter = new Date((new Date(x0).getTime() + new Date(x1).getTime()) / 2).toISOString().split('T')[0];
-
           shapes.push({
             type: 'rect',
-            xref: 'x', yref: 'paper',
-            x0: x0, x1: x1,
-            y0: 0, y1: 1,
+            xref: 'x',
+            yref: 'paper',
+            x0: x0,
+            x1: x1,
+            y0: 0,
+            y1: 1,
             fillcolor: cor,
-            opacity: 0.10,
+            opacity: 0.12,
             line: { width: 0 }
           });
 
-          // Alternar altura das anotações (3 níveis)
-          const yPos = 1.08 + (i % 3) * 0.07;
-
-          annotations.push({
-            x: xCenter,
-            y: yPos,
-            xref: 'x',
-            yref: 'paper',
-            text: lider.nome,
-            showarrow: false,
-            font: { size: 12, color: cor, family: 'Arial' },
-            textangle: 0,
-            bgcolor: 'rgba(255,255,255,0.9)',
-            bordercolor: cor,
-            borderwidth: 1,
-            borderpad: 3
-          });
+          const item = document.createElement("div");
+          item.className = "item-lider";
+          const corDiv = document.createElement("div");
+          corDiv.className = "cor-lider";
+          corDiv.style.backgroundColor = cor;
+          const texto = document.createElement("span");
+          texto.textContent = lider.nome;
+          item.appendChild(corDiv);
+          item.appendChild(texto);
+          legendaDiv.appendChild(item);
         }
 
         Plotly.newPlot('grafico', traces, {
           title: { text: `${abrangencia}: ${quebraTitulo(variavel)}`, font: { size: 18 }, x: 0.5 },
-          xaxis: { title: 'Período', tickangle: -45, automargin: true, tickfont: { size: 11 } },
+          xaxis: { title: 'Período', tickangle: -45, automargin: true },
           yaxis: { title: 'Valor', automargin: true },
           shapes: shapes,
-          annotations: annotations,
-          height: 720,
-          margin: { l: 80, r: 40, t: 160, b: 160 },
-          legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center', font: { size: 12 } },
+          margin: { l: 80, r: 50, t: 120, b: 150 },
+          legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center' },
           plot_bgcolor: "#fff",
-          paper_bgcolor: "#fff"
+          paper_bgcolor: "#fff",
+          height: 720
         }, {responsive: true});
       }
 
