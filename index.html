@@ -30,7 +30,7 @@
     }
     header h1 {
       margin: 0;
-      font-size: 1.8em;
+      font-size: 1.9em;
     }
     header h2 {
       margin: 5px 0 0;
@@ -62,8 +62,8 @@
     }
     #grafico {
       width: 95%;
-      max-width: 1100px;
-      margin-bottom: 40px;
+      max-width: 1150px;
+      margin-bottom: 50px;
     }
     footer {
       background: #002b5c;
@@ -114,17 +114,17 @@
   <script>
     const lideres = {
       "Brasil": [
-        { nome: "Dilma Rousseff", inicio: "2011-01-01" },
-        { nome: "Michel Temer", inicio: "2016-08-31" },
-        { nome: "Jair Bolsonaro", inicio: "2019-01-01" },
-        { nome: "Lula", inicio: "2023-01-01" }
+        { nome: "Dilma Rousseff", inicio: "2011-01-01", cor: "#d62728" },
+        { nome: "Michel Temer", inicio: "2016-08-31", cor: "#1f77b4" },
+        { nome: "Jair Bolsonaro", inicio: "2019-01-01", cor: "#2ca02c" },
+        { nome: "Lula", inicio: "2023-01-01", cor: "#ff7f0e" }
       ],
       "Rio Grande do Sul": [
-        { nome: "Tarso Genro", inicio: "2011-01-01" },
-        { nome: "José Ivo Sartori", inicio: "2015-01-01" },
-        { nome: "Eduardo Leite (1º)", inicio: "2019-01-01" },
-        { nome: "Ranolfo Vieira", inicio: "2022-03-31" },
-        { nome: "Eduardo Leite (2º)", inicio: "2023-01-01" }
+        { nome: "Tarso Genro", inicio: "2011-01-01", cor: "#d62728" },
+        { nome: "José Ivo Sartori", inicio: "2015-01-01", cor: "#1f77b4" },
+        { nome: "Eduardo Leite (1º)", inicio: "2019-01-01", cor: "#2ca02c" },
+        { nome: "Ranolfo Vieira", inicio: "2022-03-31", cor: "#ff7f0e" },
+        { nome: "Eduardo Leite (2º)", inicio: "2023-01-01", cor: "#9467bd" }
       ]
     };
 
@@ -192,7 +192,7 @@
 
         for (let i = 0; i < liderancas.length; i++) {
           const lider = liderancas[i];
-          const cor = i % 2 === 0 ? 'rgba(200,200,255,0.3)' : 'rgba(255,200,200,0.3)';
+          const cor = lider.cor;
           const x0 = lider.inicio;
           const x1 = (i < liderancas.length - 1) ? liderancas[i + 1].inicio : '2026-01-01';
 
@@ -202,7 +202,7 @@
             x0: x0, x1: x1,
             y0: 0, y1: 1,
             fillcolor: cor,
-            opacity: 0.4,
+            opacity: 0.12,
             line: { width: 0 }
           });
 
@@ -213,23 +213,26 @@
             yref: 'paper',
             text: lider.nome,
             showarrow: false,
-            font: { size: 12, color: '#111' },
-            textangle: 90
+            font: { size: 12, color: cor, family: 'Arial' },
+            textangle: 90,
+            bgcolor: 'rgba(255,255,255,0.8)',
+            bordercolor: cor,
+            borderwidth: 1
           });
         }
 
         Plotly.newPlot('grafico', traces, {
-          title: { text: `${abrangencia}: ${variavel}`, font: { size: 18 } },
-          xaxis: { title: 'Período', tickangle: -45 },
-          yaxis: { title: 'Valor' },
+          title: { text: `${abrangencia}: ${variavel}`, font: { size: 18 }, x: 0.5 },
+          xaxis: { title: 'Período', tickangle: -45, automargin: true, tickfont: { size: 11 } },
+          yaxis: { title: 'Valor', automargin: true },
           shapes: shapes,
           annotations: annotations,
-          height: 650,
-          margin: { l: 70, r: 30, t: 80, b: 120 },
-          legend: { orientation: 'h', y: -0.25, x: 0.5, xanchor: 'center' },
+          height: 700,
+          margin: { l: 80, r: 40, t: 100, b: 160 },
+          legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center', font: { size: 12 } },
           plot_bgcolor: "#fff",
           paper_bgcolor: "#fff"
-        });
+        }, {responsive: true});
       }
 
       variavelSelect.addEventListener('change', filtrarEPlotar);
