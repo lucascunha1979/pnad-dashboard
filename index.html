@@ -137,10 +137,6 @@
       const numericCols = Object.keys(data[0]).filter(c => 
         !['data', 'data_formatada', 'abrangencia', 'pop', 'variavel', 'lideranca'].includes(c)
       );
-      if (numericCols.length === 0) {
-        alert("Erro: nenhuma coluna numérica encontrada no CSV.");
-        return;
-      }
       const valorCol = numericCols[0];
 
       const variaveis = [...new Set(data.map(row => row.variavel))];
@@ -158,13 +154,10 @@
         const popFiltro = document.getElementById('popSelect').value;
 
         const filtrado = data.filter(row => row.variavel === variavel && row.abrangencia === abrangencia);
-
         const grupos = { Total: [], Homens: [], Mulheres: [] };
         filtrado.forEach(row => {
           const y = parseFloat(row[valorCol]);
-          if (!isNaN(y) && grupos[row.pop]) {
-            grupos[row.pop].push({ x: row.data, y: y });
-          }
+          if (!isNaN(y) && grupos[row.pop]) grupos[row.pop].push({ x: row.data, y: y });
         });
 
         let traces = [];
@@ -196,6 +189,9 @@
           const x0 = lider.inicio;
           const x1 = (i < liderancas.length - 1) ? liderancas[i + 1].inicio : '2026-01-01';
 
+          // Centralizar o texto entre os períodos
+          const xCenter = new Date((new Date(x0).getTime() + new Date(x1).getTime()) / 2).toISOString().split('T')[0];
+
           shapes.push({
             type: 'rect',
             xref: 'x', yref: 'paper',
@@ -206,15 +202,18 @@
             line: { width: 0 }
           });
 
+          // Alternar altura das anotações para evitar sobreposição
+          const yPos = 1.08 + (i % 2) * 0.06;
+
           annotations.push({
-            x: x0,
-            y: 1.08,
+            x: xCenter,
+            y: yPos,
             xref: 'x',
             yref: 'paper',
             text: lider.nome,
             showarrow: false,
             font: { size: 12, color: cor, family: 'Arial' },
-            textangle: 90,
+            textangle: 0,
             bgcolor: 'rgba(255,255,255,0.8)',
             bordercolor: cor,
             borderwidth: 1
@@ -228,7 +227,7 @@
           shapes: shapes,
           annotations: annotations,
           height: 700,
-          margin: { l: 80, r: 40, t: 100, b: 160 },
+          margin: { l: 80, r: 40, t: 130, b: 160 },
           legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center', font: { size: 12 } },
           plot_bgcolor: "#fff",
           paper_bgcolor: "#fff"
