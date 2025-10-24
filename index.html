@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Painel Interativo - PNAD Contínua: Brasil e Rio Grande do Sul">
-  <meta property="og:title" content="Painel Interativo - PNAD Contínua">
-  <meta property="og:description" content="Visualização interativa dos indicadores de trabalho e emprego no Brasil e no Rio Grande do Sul.">
-  <meta property="og:type" content="website">
   <title>📊 Painel Interativo - PNAD Contínua</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
@@ -24,26 +21,15 @@
       color: white;
       text-align: center;
       padding: 20px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       width: 100%;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.8em;
-    }
-    header h2 {
-      margin: 5px 0 0;
-      font-weight: 400;
-      font-size: 1em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     #controls {
       background: white;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin: 20px auto;
+      margin: 20px;
       padding: 15px;
-      width: 90%;
-      max-width: 1000px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -152,12 +138,7 @@
     };
 
     Plotly.d3.csv('dados_pnad_trabalho.csv', function(data) {
-      if (!data || data.length === 0) {
-        alert("Erro: o arquivo CSV não foi encontrado!");
-        return;
-      }
-
-      const valorCol = Object.keys(data[0]).find(c => !['data', 'abrangencia', 'pop', 'variavel', 'lideranca', 'data_formatada'].includes(c));
+      const valorCol = Object.keys(data[0]).find(c => !['data', 'abrangencia', 'pop', 'variavel', 'lideranca'].includes(c));
       const variaveis = [...new Set(data.map(row => row.variavel))];
       const variavelSelect = document.getElementById('variavelSelect');
       variaveis.forEach(v => {
@@ -185,7 +166,8 @@
         const grupos = { Total: [], Homens: [], Mulheres: [] };
         filtrado.forEach(row => {
           const y = parseFloat(row[valorCol]);
-          if (!isNaN(y) && grupos[row.pop]) grupos[row.pop].push({ x: row.data, y });
+          const x = row.data_formatada || row.data;
+          if (!isNaN(y) && grupos[row.pop]) grupos[row.pop].push({ x, y });
         });
 
         let traces = [];
@@ -214,7 +196,6 @@
 
         for (let i = 0; i < liderancas.length; i++) {
           const lider = liderancas[i];
-          const cor = lider.cor;
           const x0 = lider.inicio;
           const x1 = (i < liderancas.length - 1) ? liderancas[i + 1].inicio : '2026-01-01';
 
@@ -226,8 +207,8 @@
             x1: x1,
             y0: 0,
             y1: 1,
-            fillcolor: cor,
-            opacity: 0.12,
+            fillcolor: lider.cor,
+            opacity: 0.2,
             line: { width: 0 }
           });
 
@@ -235,7 +216,7 @@
           item.className = "item-lider";
           const corDiv = document.createElement("div");
           corDiv.className = "cor-lider";
-          corDiv.style.backgroundColor = cor;
+          corDiv.style.backgroundColor = lider.cor;
           const texto = document.createElement("span");
           texto.textContent = lider.nome;
           item.appendChild(corDiv);
@@ -245,7 +226,7 @@
 
         Plotly.newPlot('grafico', traces, {
           title: { text: `${abrangencia}: ${quebraTitulo(variavel)}`, font: { size: 18 }, x: 0.5 },
-          xaxis: { title: 'Período', tickangle: -45, automargin: true },
+          xaxis: { title: 'Período', type: 'date', tickangle: -45, automargin: true },
           yaxis: { title: 'Valor', automargin: true },
           shapes: shapes,
           margin: { l: 80, r: 50, t: 120, b: 150 },
