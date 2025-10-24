@@ -51,7 +51,7 @@
       align-items: flex-start;
       gap: 15px;
       width: 95%;
-      max-width: 1200px;
+      max-width: 1300px;
     }
     #grafico {
       flex-grow: 1;
@@ -123,17 +123,17 @@
   <script>
     const lideres = {
       "Brasil": [
-        { nome: "Dilma Rousseff", inicio: "2011-01-01", cor: "#d62728" },
-        { nome: "Michel Temer", inicio: "2016-08-31", cor: "#1f77b4" },
-        { nome: "Jair Bolsonaro", inicio: "2019-01-01", cor: "#2ca02c" },
-        { nome: "Luiz Inácio Lula da Silva", inicio: "2023-01-01", cor: "#ff7f0e" }
+        { nome: "Dilma Rousseff", inicio: "2011-01-01", cor: "#e74c3c" },
+        { nome: "Michel Temer", inicio: "2016-08-31", cor: "#3498db" },
+        { nome: "Jair Bolsonaro", inicio: "2019-01-01", cor: "#27ae60" },
+        { nome: "Luiz Inácio Lula da Silva", inicio: "2023-01-01", cor: "#f39c12" }
       ],
       "Rio Grande do Sul": [
-        { nome: "Tarso Genro", inicio: "2011-01-01", cor: "#d62728" },
-        { nome: "José Ivo Sartori", inicio: "2015-01-01", cor: "#1f77b4" },
-        { nome: "Eduardo Leite (1º)", inicio: "2019-01-01", cor: "#2ca02c" },
-        { nome: "Ranolfo Vieira Júnior", inicio: "2022-03-31", cor: "#ff7f0e" },
-        { nome: "Eduardo Leite (2º)", inicio: "2023-01-01", cor: "#9467bd" }
+        { nome: "Tarso Genro", inicio: "2011-01-01", cor: "#e74c3c" },
+        { nome: "José Ivo Sartori", inicio: "2015-01-01", cor: "#3498db" },
+        { nome: "Eduardo Leite (1º)", inicio: "2019-01-01", cor: "#27ae60" },
+        { nome: "Ranolfo Vieira Júnior", inicio: "2022-03-31", cor: "#f39c12" },
+        { nome: "Eduardo Leite (2º)", inicio: "2023-01-01", cor: "#9b59b6" }
       ]
     };
 
@@ -157,6 +157,14 @@
         return texto;
       }
 
+      function parseData(d) {
+        try {
+          return new Date(d);
+        } catch {
+          return null;
+        }
+      }
+
       function filtrarEPlotar() {
         const variavel = variavelSelect.value;
         const abrangencia = document.getElementById('abrangenciaSelect').value;
@@ -164,10 +172,11 @@
 
         const filtrado = data.filter(row => row.variavel === variavel && row.abrangencia === abrangencia);
         const grupos = { Total: [], Homens: [], Mulheres: [] };
+
         filtrado.forEach(row => {
           const y = parseFloat(row[valorCol]);
-          const x = row.data_formatada || row.data;
-          if (!isNaN(y) && grupos[row.pop]) grupos[row.pop].push({ x, y });
+          const x = parseData(row.data_formatada);
+          if (!isNaN(y) && x && grupos[row.pop]) grupos[row.pop].push({ x, y });
         });
 
         let traces = [];
@@ -196,8 +205,8 @@
 
         for (let i = 0; i < liderancas.length; i++) {
           const lider = liderancas[i];
-          const x0 = lider.inicio;
-          const x1 = (i < liderancas.length - 1) ? liderancas[i + 1].inicio : '2026-01-01';
+          const x0 = new Date(lider.inicio);
+          const x1 = (i < liderancas.length - 1) ? new Date(liderancas[i + 1].inicio) : new Date('2026-01-01');
 
           shapes.push({
             type: 'rect',
@@ -208,7 +217,7 @@
             y0: 0,
             y1: 1,
             fillcolor: lider.cor,
-            opacity: 0.2,
+            opacity: 0.25,
             line: { width: 0 }
           });
 
