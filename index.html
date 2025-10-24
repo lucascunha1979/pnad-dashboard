@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Panorama do Trabalho no Brasil e no RS</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    select {
+      padding: 8px;
+      font-size: 16px;
+      margin: 0 10px;
+    }
+    #grafico {
+      width: 100%;
+      max-width: 1000px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel Interativo: Indicadores da PNAD Contínua</h1>
+
+  <div id="controls">
+    <label for="variavelSelect">Variável:</label>
+    <select id="variavelSelect"></select>
+
+    <label for="abrangenciaSelect">Abrangência:</label>
+    <select id="abrangenciaSelect">
+      <option value="Brasil">Brasil</option>
+      <option value="Rio Grande do Sul">Rio Grande do Sul</option>
+    </select>
+
+    <label for="popSelect">População:</label>
+    <select id="popSelect">
+      <option value="Todas">Todas</option>
+      <option value="Total">Total</option>
+      <option value="Homens">Homens</option>
+      <option value="Mulheres">Mulheres</option>
+    </select>
+  </div>
+
+  <div id="grafico"></div>
+
+  <script>
+    const lideres = {
+      "Brasil": [
+        { nome: "Dilma Rousseff", inicio: "2011-01-01" },
+        { nome: "Michel Temer", inicio: "2016-08-31" },
+        { nome: "Jair Bolsonaro", inicio: "2019-01-01" },
+        { nome: "Lula", inicio: "2023-01-01" }
+      ],
+      "Rio Grande do Sul": [
+        { nome: "Tarso Genro", inicio: "2011-01-01" },
+        { nome: "José Ivo Sartori", inicio: "2015-01-01" },
+        { nome: "Eduardo Leite (1º)", inicio: "2019-01-01" },
+        { nome: "Ranolfo Vieira", inicio: "2022-03-31" },
+        { nome: "Eduardo Leite (2º)", inicio: "2023-01-01" }
+      ]
+    };
+
+    Plotly.d3.csv('dados_pnad_trabalho.csv', function(data) {
+      if (!data || data.length === 0) {
+        alert("Erro: o arquivo CSV não foi encontrado ou está vazio!");
+        return;
+      }
+
+      const numericCols = Object.keys(data[0]).filter(c => 
+        !['data', 'data_formatada', 'abrangencia', 'pop', 'variavel', 'lideranca'].includes(c)
+      );
+      if (numericCols.length === 0) {
+        alert("Erro: nenhuma coluna numérica encontrada no CSV.");
+        return;
+      }
+      const valorCol = numericCols[0];
+
+      const variaveis = [...new Set(data.map(row => row.variavel))];
+      const variavelSelect = document.getElementById('variavelSelect');
+      variaveis.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.text = v;
+        variavelSelect.appendChild(opt);
+      });
+
+      function filtrarEPlotar() {
+        const variavel = variavelSelect.value;
+        const abrangencia = document.getElementById('abrangenciaSelect').value;
+        const popFiltro = document.getElementById('popSelect').value;
+
+        const filtrado = data.filter(row => row.variavel === variavel && row.abrangencia === abrangencia);
+
+        const grupos = { Total: [], Homens: [], Mulheres: [] };
+        filtrado.forEach(row => {
+          const y = parseFloat(row[valorCol]);
+          if (!isNaN(y) && grupos[row.pop]) {
+            grupos[row.pop].push({ x: row.data, y: y });
+          }
+        });
+
+        let traces = [];
+        if (popFiltro === 'Todas') {
+          traces = Object.keys(grupos).map(pop => ({
+            x: grupos[pop].map(p => p.x),
+            y: grupos[pop].map(p => p.y),
+            mode: 'lines+markers',
+            name: pop
+          }));
+        } else {
+          traces.push({
+            x: grupos[popFiltro].map(p => p.x),
+            y: grupos[popFiltro].map(p => p.y),
+            mode: 'lines+markers',
+            name: popFiltro
+          });
+        }
+
+        const shapes = [];
+        const annotations = [];
+        const liderancas = lideres[abrangencia];
+
+        for (let i = 0; i < liderancas.length; i++) {
+          const lider = liderancas[i];
+          const cor = i % 2 === 0 ? 'rgba(200,200,255,0.3)' : 'rgba(255,200,200,0.3)';
+          const x0 = lider.inicio;
+          const x1 = (i < liderancas.length - 1) ? liderancas[i + 1].inicio : '2026-01-01';
+
+          shapes.push({
+            type: 'rect',
+            xref: 'x', yref: 'paper',
+            x0: x0, x1: x1,
+            y0: 0, y1: 1,
+            fillcolor: cor,
+            opacity: 0.4,
+            line: { width: 0 }
+          });
+
+          annotations.push({
+            x: x0,
+            y: 1.05,
+            xref: 'x',
+            yref: 'paper',
+            text: lider.nome,
+            showarrow: false,
+            font: { size: 11, color: 'black' },
+            textangle: 90
+          });
+        }
+
+        Plotly.newPlot('grafico', traces, {
+          title: `${abrangencia}: ${variavel}`,
+          xaxis: { title: 'Trimestre' },
+          yaxis: { title: 'Valor' },
+          shapes: shapes,
+          annotations: annotations
+        });
+      }
+
+      variavelSelect.addEventListener('change', filtrarEPlotar);
+      document.getElementById('abrangenciaSelect').addEventListener('change', filtrarEPlotar);
+      document.getElementById('popSelect').addEventListener('change', filtrarEPlotar);
+      filtrarEPlotar();
+    });
+  </script>
+</body>
+</html>
