@@ -7,50 +7,15 @@
     <script src="https://cdn.plot.ly/plotly-2.31.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: #fafafa;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #002b5c;
-        }
-        h2 {
-            text-align: center;
-            color: #555;
-            margin-top: -10px;
-        }
-        #controls {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        select, input[type="radio"] {
-            margin: 5px;
-            padding: 5px;
-        }
-        #grafico {
-            width: 95%;
-            margin: auto;
-        }
-        table {
-            width: 95%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-        }
-        th {
-            background: #002b5c;
-            color: white;
-            padding: 10px;
-        }
-        td {
-            text-align: center;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
+        body {font-family: 'Segoe UI', Roboto, sans-serif; background-color: #fafafa; margin: 0; padding: 20px;}
+        h1 {text-align: center; color: #002b5c;}
+        h2 {text-align: center; color: #555; margin-top: -10px;}
+        #controls {text-align: center; margin-bottom: 25px;}
+        select, input[type="radio"] {margin: 5px; padding: 5px;}
+        #grafico {width: 95%; margin: auto;}
+        table {width: 95%; margin: 20px auto; border-collapse: collapse; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.1);}
+        th {background: #002b5c; color: white; padding: 10px;}
+        td {text-align: center; padding: 8px; border-bottom: 1px solid #ddd;}
         tr:hover {background-color: #f1f1f1;}
     </style>
 </head>
@@ -127,18 +92,14 @@
             });
         }
 
-        document.querySelectorAll("select, input[name='abrangencia'], input[name='pop']")
-            .forEach(el => el.addEventListener("change", atualizarGrafico));
+        document.querySelectorAll("select, input[name='abrangencia'], input[name='pop']").forEach(el => el.addEventListener("change", atualizarGrafico));
 
         function atualizarGrafico() {
             const variavel = document.getElementById("variavel").value;
             const abrangencia = document.querySelector("input[name='abrangencia']:checked").value;
             const pop = document.querySelector("input[name='pop']:checked").value;
 
-            const df = dadosCSV.filter(d => 
-                d.variavel === variavel && d.abrangencia === abrangencia &&
-                (pop === "Todas" || d.pop === pop)
-            );
+            const df = dadosCSV.filter(d => d.variavel === variavel && d.abrangencia === abrangencia && (pop === "Todas" || d.pop === pop));
 
             const x = df.map(d => new Date(d.data_formatada));
             const y = df.map(d => parseFloat(Object.values(d).filter(v => !isNaN(v))[0]));
@@ -147,15 +108,11 @@
             const tendencia = regressaoLinear(y);
 
             const shapes = [];
-            const cores = ['rgba(230,97,1,0.2)','rgba(94,60,153,0.2)','rgba(29,145,192,0.2)',
-                           'rgba(254,224,144,0.2)','rgba(171,221,164,0.2)'];
+            const cores = ['rgba(230,97,1,0.2)','rgba(94,60,153,0.2)','rgba(29,145,192,0.2)','rgba(254,224,144,0.2)','rgba(171,221,164,0.2)'];
             governos[abrangencia].forEach((g,i)=>{
                 const x0 = new Date(g.inicio);
                 const x1 = i < governos[abrangencia].length-1 ? new Date(governos[abrangencia][i+1].inicio) : new Date("2026-01-01");
-                shapes.push({
-                    type:'rect',xref:'x',yref:'paper',x0,x1,y0:0,y1:1,
-                    fillcolor:cores[i%cores.length],opacity:0.3,line:{width:0}
-                });
+                shapes.push({type:'rect',xref:'x',yref:'paper',x0,x1,y0:0,y1:1,fillcolor:cores[i%cores.length],opacity:0.3,line:{width:0}});
             });
 
             const fig = {
@@ -164,17 +121,9 @@
                     {x, y:Array(y.length).fill(media), mode:'lines', name:'Média', line:{color:'blue',dash:'dot'}},
                     {x, y:tendencia, mode:'lines', name:'Tendência', line:{color:'red',dash:'dash'}}
                 ],
-                layout: {
-                    title: `${abrangencia}: ${variavel}`,
-                    xaxis:{title:'Período'},
-                    yaxis:{title:'Valor'},
-                    shapes: shapes,
-                    height:600,
-                    template:'plotly_white'
-                }
+                layout: {title: `${abrangencia}: ${variavel}`, xaxis:{title:'Período'}, yaxis:{title:'Valor'}, shapes: shapes, height:600, template:'plotly_white'}
             };
             Plotly.newPlot("grafico", fig.data, fig.layout);
-
             atualizarTabela(df, abrangencia);
         }
 
@@ -193,25 +142,18 @@
             governos[abrangencia].forEach((g,i)=>{
                 const ini=new Date(g.inicio);
                 const fim=i<governos[abrangencia].length-1?new Date(governos[abrangencia][i+1].inicio):new Date("2026-01-01");
-                const sub=df.filter(d=>{
-                    const data=new Date(d.data_formatada);
-                    return data>=ini && data<fim;
-                });
+                const sub=df.filter(d=>{const data=new Date(d.data_formatada); return data>=ini && data<fim;});
                 if(sub.length>0){
                     const valores=sub.map(d=>parseFloat(Object.values(d).filter(v=>!isNaN(v))[0]));
                     const media=mediaArray(valores);
                     const min=Math.min(...valores);
                     const max=Math.max(...valores);
                     const variacao=((max-min)/min)*100;
-                    const linha=`<tr><td>${g.nome}</td><td>${ini.toISOString().slice(0,10)}</td>
-                                 <td>${fim.toISOString().slice(0,10)}</td><td>${media.toFixed(2)}</td>
-                                 <td>${min.toFixed(2)}</td><td>${max.toFixed(2)}</td>
-                                 <td>${variacao.toFixed(1)}%</td></tr>`;
+                    const linha=`<tr><td>${g.nome}</td><td>${ini.toISOString().slice(0,10)}</td><td>${fim.toISOString().slice(0,10)}</td><td>${media.toFixed(2)}</td><td>${min.toFixed(2)}</td><td>${max.toFixed(2)}</td><td>${variacao.toFixed(1)}%</td></tr>`;
                     corpo.insertAdjacentHTML('beforeend',linha);
                 }
             });
         }
-
         function mediaArray(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
     </script>
 </body>
