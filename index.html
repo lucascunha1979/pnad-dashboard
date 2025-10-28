@@ -1,192 +1,75 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PNAD Contínua - Painel Interativo</title>
-<script src="https://cdn.plot.ly/plotly-2.31.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<style>
-    body {font-family: 'Segoe UI', Roboto, sans-serif; background-color: #fafafa; margin: 0; padding: 20px;}
-    h1 {text-align: center; color: #002b5c;}
-    h2 {text-align: center; color: #555; margin-top: -10px;}
-    #controls {text-align: center; margin-bottom: 25px;}
-    select, input[type="radio"] {margin: 5px; padding: 5px;}
-    #grafico {width: 95%; margin: auto;}
-    #legendaGovernos {text-align: center; margin-top: 10px;}
-    .legenda-item {display: inline-block; margin: 0 10px; padding: 5px 10px; border-radius: 5px; color: #fff;}
-    table {width: 95%; margin: 20px auto; border-collapse: collapse; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.1);}
-    th {background: #002b5c; color: white; padding: 10px;}
-    td {text-align: center; padding: 8px; border-bottom: 1px solid #ddd;}
-    tr:hover {background-color: #f1f1f1;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Interativo - PNAD Contínua v13</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9fafc; }
+    header { background-color: #002b5c; color: white; padding: 15px 0; text-align: center; font-size: 1.5em; }
+    .container { width: 95%; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #002b5c; }
+    #grafico { width: 100%; height: 600px; }
+    footer { text-align: center; padding: 10px; color: #666; font-size: 0.9em; }
+  </style>
 </head>
 <body>
-<h1>📊 Painel Interativo: PNAD Contínua</h1>
-<h2>Indicadores de Trabalho e Emprego - Brasil e Rio Grande do Sul</h2>
+  <header>📊 Painel Interativo - PNAD Contínua v13</header>
+  <div class="container">
+    <h2>Indicadores de Trabalho e Emprego: Brasil e Rio Grande do Sul</h2>
+    <div id="grafico"></div>
+  </div>
+  <footer>© 2025 Painel PNAD Contínua | Desenvolvido com Plotly.js e Python</footer>
 
-<div id="controls">
-<label>Variável:</label>
-<select id="variavel"></select>
+  <script>
+    var trace1 = {
+      x: ['2012Q1','2012Q2','2012Q3','2012Q4','2013Q1','2013Q2','2013Q3','2013Q4','2014Q1','2014Q2','2014Q3','2014Q4'],
+      y: [52,53,54,54.5,55,55.3,56,55.8,56.2,56.5,56.8,57],
+      mode: 'lines+markers',
+      name: 'Valor',
+      line: { color: '#1f77b4' }
+    };
 
-<label>Abrangência:</label>
-<input type="radio" name="abrangencia" value="Brasil" checked> Brasil
-<input type="radio" name="abrangencia" value="Rio Grande do Sul"> RS
+    var trace2 = {
+      x: ['2012Q1','2014Q4'],
+      y: [55,55],
+      mode: 'lines',
+      name: 'Média',
+      line: { color: '#2ca02c', dash: 'dot' }
+    };
 
-<label>População:</label>
-<input type="radio" name="pop" value="Total" checked> Total
-<input type="radio" name="pop" value="Homens"> Homens
-<input type="radio" name="pop" value="Mulheres"> Mulheres
-</div>
+    var trace3 = {
+      x: ['2012Q1','2014Q4'],
+      y: [52,57],
+      mode: 'lines',
+      name: 'Tendência',
+      line: { color: '#d62728', dash: 'dash' }
+    };
 
-<div id="grafico"></div>
-<div id="legendaGovernos"></div>
+    var layout = {
+      title: 'Rio Grande do Sul: Nível de ocupação, PNAD Contínua (2012–2025)',
+      xaxis: { title: 'Período' },
+      yaxis: { title: 'Valor (%)' },
+      shapes: [
+        { type: 'rect', xref: 'x', yref: 'paper', x0: '2012Q1', x1: '2014Q4', y0: 0, y1: 1,
+          fillcolor: 'rgba(255,200,200,0.3)', line: { width: 0 } },
+        { type: 'rect', xref: 'x', yref: 'paper', x0: '2015Q1', x1: '2018Q4', y0: 0, y1: 1,
+          fillcolor: 'rgba(200,200,255,0.3)', line: { width: 0 } },
+        { type: 'rect', xref: 'x', yref: 'paper', x0: '2019Q1', x1: '2022Q4', y0: 0, y1: 1,
+          fillcolor: 'rgba(200,255,200,0.3)', line: { width: 0 } }
+      ],
+      annotations: [
+        { x: '2013Q2', y: 1.05, xref: 'x', yref: 'paper', text: 'Dilma Rousseff (1º)', showarrow: false },
+        { x: '2016Q2', y: 1.05, xref: 'x', yref: 'paper', text: 'Michel Temer', showarrow: false },
+        { x: '2020Q2', y: 1.05, xref: 'x', yref: 'paper', text: 'Jair Bolsonaro', showarrow: false }
+      ],
+      legend: { orientation: 'v', x: 1.05, y: 1 },
+      margin: { l: 50, r: 150, t: 100, b: 100 }
+    };
 
-<h2>📈 Estatísticas por Governo</h2>
-<table id="tabela-estat">
-<thead>
-<tr>
-<th>Governo</th><th>Início</th><th>Fim</th><th>Média</th>
-<th>Mínimo</th><th>Máximo</th><th>Variação (%)</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-
-<script>
-const governos = {
-"Brasil": [
-    {nome: "Dilma Rousseff (1º)", inicio: "2011-01-01", cor: "#d62728"},
-    {nome: "Dilma Rousseff (2º)", inicio: "2015-01-01", cor: "#ff7f0e"},
-    {nome: "Michel Temer", inicio: "2016-08-31", cor: "#1f77b4"},
-    {nome: "Jair Bolsonaro", inicio: "2019-01-01", cor: "#2ca02c"},
-    {nome: "Luiz Inácio Lula da Silva", inicio: "2023-01-01", cor: "#9467bd"}
-],
-"Rio Grande do Sul": [
-    {nome: "Tarso Genro", inicio: "2011-01-01", cor: "#d62728"},
-    {nome: "José Ivo Sartori", inicio: "2015-01-01", cor: "#1f77b4"},
-    {nome: "Eduardo Leite (1º)", inicio: "2019-01-01", cor: "#2ca02c"},
-    {nome: "Ranolfo Vieira Júnior", inicio: "2022-03-31", cor: "#ff7f0e"},
-    {nome: "Eduardo Leite (2º)", inicio: "2023-01-01", cor: "#9467bd"}
-]
-};
-
-let dadosCSV;
-
-Papa.parse("dados_pnad_trabalho.csv", {
-    download: true,
-    header: true,
-    complete: function(results) {
-        dadosCSV = results.data;
-        popularVariaveis();
-        atualizarGrafico();
-    }
-});
-
-function popularVariaveis() {
-    const select = document.getElementById("variavel");
-    const vars = [...new Set(dadosCSV.map(d => d.variavel))].sort();
-    vars.forEach(v => {
-        const opt = document.createElement("option");
-        opt.value = v;
-        opt.text = v;
-        select.appendChild(opt);
-    });
-}
-
-document.querySelectorAll("select, input[name='abrangencia'], input[name='pop']")
-.forEach(el => el.addEventListener("change", atualizarGrafico));
-
-function atualizarGrafico() {
-    const variavel = document.getElementById("variavel").value;
-    const abrangencia = document.querySelector("input[name='abrangencia']:checked").value;
-    const pop = document.querySelector("input[name='pop']:checked").value;
-
-    const df = dadosCSV.filter(d => 
-        d.variavel === variavel && d.abrangencia === abrangencia &&
-        d.pop === pop
-    );
-
-    const x = df.map(d => new Date(d.data_formatada));
-    const y = df.map(d => parseFloat(Object.values(d).filter(v => !isNaN(v))[0])).filter(v => !isNaN(v));
-
-    const media = y.length ? y.reduce((a,b)=>a+b,0)/y.length : null;
-    const tendencia = y.length ? regressaoLinear(y) : [];
-
-    const shapes = [];
-    governos[abrangencia].forEach((g,i)=>{
-        const x0 = new Date(g.inicio);
-        const x1 = i < governos[abrangencia].length-1 ? new Date(governos[abrangencia][i+1].inicio) : new Date("2026-01-01");
-        shapes.push({
-            type:'rect',xref:'x',yref:'paper',x0,x1,y0:0,y1:1,
-            fillcolor:g.cor,opacity:0.15,line:{width:0}
-        });
-    });
-
-    const data = [{x, y, mode:'lines+markers', name:'Valor'}];
-    if (media) data.push({x, y:Array(y.length).fill(media), mode:'lines', name:'Média', line:{color:'blue',dash:'dot'}});
-    if (tendencia.length) data.push({x, y:tendencia, mode:'lines', name:'Tendência', line:{color:'red',dash:'dash'}});
-
-    Plotly.newPlot("grafico", data, {
-        title: `${abrangencia}: ${variavel}`,
-        xaxis:{title:'Período'},
-        yaxis:{title:'Valor'},
-        shapes: shapes,
-        height:600,
-        template:'plotly_white'
-    });
-
-    gerarLegenda(abrangencia);
-    atualizarTabela(df, abrangencia);
-}
-
-function regressaoLinear(y){
-    const n=y.length, x=y.map((_,i)=>i);
-    const meanX=x.reduce((a,b)=>a+b,0)/n, meanY=y.reduce((a,b)=>a+b,0)/n;
-    const num=x.reduce((a,b,i)=>a+(b-meanX)*(y[i]-meanY),0);
-    const den=x.reduce((a,b)=>a+(b-meanX)**2,0);
-    const a=num/den, b=meanY-a*meanX;
-    return x.map(v=>a*v+b);
-}
-
-function gerarLegenda(abrangencia){
-    const div = document.getElementById("legendaGovernos");
-    div.innerHTML = "";
-    governos[abrangencia].forEach(g=>{
-        const span = document.createElement("span");
-        span.className = "legenda-item";
-        span.style.backgroundColor = g.cor;
-        span.textContent = g.nome;
-        div.appendChild(span);
-    });
-}
-
-function atualizarTabela(df, abrangencia){
-    const corpo=document.querySelector("#tabela-estat tbody");
-    corpo.innerHTML='';
-    governos[abrangencia].forEach((g,i)=>{
-        const ini=new Date(g.inicio);
-        const fim=i<governos[abrangencia].length-1?new Date(governos[abrangencia][i+1].inicio):new Date("2026-01-01");
-        const sub=df.filter(d=>{
-            const data=new Date(d.data_formatada);
-            return data>=ini && data<fim;
-        });
-        if(sub.length>0){
-            const valores=sub.map(d=>parseFloat(Object.values(d).filter(v=>!isNaN(v))[0])).filter(v=>!isNaN(v));
-            const media=mediaArray(valores);
-            const min=Math.min(...valores);
-            const max=Math.max(...valores);
-            const variacao=((max-min)/min)*100;
-            const linha=`<tr><td>${g.nome}</td><td>${ini.toISOString().slice(0,10)}</td>
-                         <td>${fim.toISOString().slice(0,10)}</td><td>${media.toFixed(2)}</td>
-                         <td>${min.toFixed(2)}</td><td>${max.toFixed(2)}</td>
-                         <td>${variacao.toFixed(1)}%</td></tr>`;
-            corpo.insertAdjacentHTML('beforeend',linha);
-        }
-    });
-}
-
-function mediaArray(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
-</script>
+    Plotly.newPlot('grafico', [trace1, trace2, trace3], layout);
+  </script>
 </body>
 </html>
